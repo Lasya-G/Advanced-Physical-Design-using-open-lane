@@ -95,9 +95,9 @@ Routing and design rule check(DRC)
 </summary>
 </details>
 <details>
-<sumary>
+<summary>
 Power distribution network and routing
-</sumary>
+</summary>
 </details>
 <details>
 <summary>
