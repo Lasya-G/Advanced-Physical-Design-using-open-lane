@@ -34,6 +34,9 @@ PADS: They are the medium through which the signals are sent to the chip and vic
 <summary>
 SoC Design and openLAN
 </summary>
+
+The design of ASIC requires 3 main elements: <img width="500" alt="image" src="https://github.com/Lasya-G/Advanced-Physical-Design-using-open-lane/assets/140998582/385ff810-a879-45a5-bee1-f67e96887e1f">  
+
 </details>
 
 <details>
