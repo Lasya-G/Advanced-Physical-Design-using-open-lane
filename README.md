@@ -36,7 +36,30 @@ SoC Design and openLAN
 </summary>
 
 The design of ASIC requires 3 main elements:  
-<img width="500" alt="image" src="https://github.com/Lasya-G/Advanced-Physical-Design-using-open-lane/assets/140998582/99d9a740-a823-46f4-ae4e-e03caf5e3852">  
+<img width="400" alt="image" src="https://github.com/Lasya-G/Advanced-Physical-Design-using-open-lane/assets/140998582/a1d87924-47f5-4b99-b224-63a885a06366">  
+
+The simplified ASIC design flow is shown below:  
+<img width="450" alt="image" src="https://github.com/Lasya-G/Advanced-Physical-Design-using-open-lane/assets/140998582/1ff9041d-9dfe-4a04-b814-d8c18dd0c583">  
+
+- **Synthesis**: This converts RTL into a circuit using the components from the standard cell library. The resultant circuit is described in HDL and is usually referred as gate-level netlist, which is a functional equivalent of RTL. Each cell has a different view depending on the tool used.
+<img width="450" alt="image" src="https://github.com/Lasya-G/Advanced-Physical-Design-using-open-lane/assets/140998582/76df67ee-686b-438c-bd43-10d7ed8d6cd7">
+
+- **Floor and Power planning**: The objective is to plan the silicon area and robust power distribution network to power the circuits.
+  - Chip-Floor Planning: Partition the chip die between different system building blocks and place the I/O pads.
+  - Macro-Floor Planning: We define the macro dimensions and its pin locations. We also define row definitions which is used in placement process.
+  - Power PLanning : It is the process of managing and distributing electrical power within an IC to ensure proper functionality, performance, and reliability while minimizing power consumption.
+<img width="400" alt="image" src="https://github.com/Lasya-G/Advanced-Physical-Design-using-open-lane/assets/140998582/1ce74b69-b92e-4275-8f02-57eb9ccae251">
+<img width="200" alt="image" src="https://github.com/Lasya-G/Advanced-Physical-Design-using-open-lane/assets/140998582/1438aeca-4f1f-4396-86f0-6b965a85fcbc">
+<img width="200" alt="image" src="https://github.com/Lasya-G/Advanced-Physical-Design-using-open-lane/assets/140998582/770361da-3faf-4993-8bd4-ff692b42e75b">
+
+
+
+
+
+  
+
+
+
 
 </details>
 
