@@ -78,16 +78,14 @@ The simplified ASIC design flow is shown below:
 **OpenLane ASIC Flow**:  
 <img width="500" alt="image" src="https://github.com/Lasya-G/Advanced-Physical-Design-using-open-lane/assets/140998582/f02bc1db-eee4-4c52-aa64-98c0a7577b01">   
 
-
-
-
-
 </details>
 
 <details>
 <summary>
 Get familiar to open-source EDA tools
 </summary>
+
+
 </details>  
 
 ### Day 2 - Good floorplan vs bad floorplan and introduction to library cells
