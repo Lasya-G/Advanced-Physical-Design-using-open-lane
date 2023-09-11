@@ -85,6 +85,32 @@ The simplified ASIC design flow is shown below:
 Get familiar to open-source EDA tools
 </summary>
 
+Follow the below steps for installation of OpenLane:  
+
+```
+cd $HOME
+git clone https://github.com/The-OpenROAD-Project/OpenLane --recurse-submodules 
+cd OpenLane
+make
+make test
+cd /home/pranathi/OpenLane/designs/ci
+cp -r * ../
+```
+Use the following commands to invoke OpenLane and run synthesis:  
+
+```
+cd ~/OpenLane
+make mount
+./flow.tcl -interactive
+package require openlane 0.9
+prep -design picorv32a
+run_synthesis
+```
+
+
+
+
+
 
 </details>  
 
