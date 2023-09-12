@@ -134,6 +134,25 @@ Flop ratio = Number of flops/Total number of cells = 1596/10104 = 0.1579
 <summary>
 Chip Floor Planning considerations
 </summary>
+
+There are 2 important factors to consider in Floorplanning: **Utilization Factor** and **Aspect Ratio**. They are defined as follows:
+```
+Utilisation Factor =  Area occupied by netlist
+                     __________________________
+                        Total area of core
+```
+When Utilization factor is 1, it means the core is completely utilised and there is no space for extra logic. So, we typically maintain the utilization factor as 0.5 or 0.6.  
+
+```
+
+Aspect Ratio =  Height
+               ________
+                Width
+
+```
+The Aspect ratio of 1 implies that the chip is square shaped. Any value other than 1 implies rectanglular chip.
+
+
 </details>
 <details>
 <summary>
