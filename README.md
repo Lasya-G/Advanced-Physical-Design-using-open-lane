@@ -99,7 +99,7 @@ cp -r * ../
 Use the following commands to invoke OpenLane and run synthesis:  
 
 ```
-cd ~/OpenLane
+cd ASIC/OpenLane
 make mount
 ./flow.tcl -interactive
 package require openlane 0.9
