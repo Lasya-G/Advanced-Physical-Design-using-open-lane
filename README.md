@@ -93,7 +93,7 @@ git clone https://github.com/The-OpenROAD-Project/OpenLane --recurse-submodules
 cd OpenLane
 make
 make test
-cd /home/pranathi/OpenLane/designs/ci
+cd /home/ASIC/OpenLane/designs/ci
 cp -r * ../
 ```
 Use the following commands to invoke OpenLane and run synthesis:  
@@ -126,13 +126,6 @@ gedit 1-synthesis.AREA_0.stat.rpt
 <img alt="image" src="https://github.com/Lasya-G/Advanced-Physical-Design-using-open-lane/assets/140998582/a40f673b-6dfd-4ba6-9e69-c1814e013057">  
 
 Flop ratio = Number of flops/Total number of cells = 1596/10104 = 0.1579 
-
-
-
-
-
-
-
 
 </details>  
 
