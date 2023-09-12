@@ -107,6 +107,28 @@ prep -design picorv32a
 run_synthesis
 ```
 
+<img alt="image" src="https://github.com/Lasya-G/Advanced-Physical-Design-using-open-lane/assets/140998582/bbe46115-0395-47a2-abce-93d9a9c80714">  
+
+To view the netlist, use the following commands:  
+```
+cd designs/picorv32a/runs/RUN_2023.09.12_06.50.19//results/synthesis/
+gedit picorv32.v
+```
+
+<img alt="image" src="https://github.com/Lasya-G/Advanced-Physical-Design-using-open-lane/assets/140998582/51d96007-594e-4b3f-9bca-d07bc582eb30">  
+
+Synthesis report can be seen by using these:
+  ```
+cd designs/picorv32a/runs/RUN_2023.09.12_06.50.19//results/synthesis/
+gedit 1-synthesis.AREA_0.stat.rpt 
+```
+
+<img alt="image" src="https://github.com/Lasya-G/Advanced-Physical-Design-using-open-lane/assets/140998582/a40f673b-6dfd-4ba6-9e69-c1814e013057">  
+
+Flop ratio = Number of flops/Total number of cells = 1596/10104 = 0.1579 
+
+
+
 
 
 
