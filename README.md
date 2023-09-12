@@ -66,7 +66,7 @@ The simplified ASIC design flow is shown below:
 
 - **Sign Off**: It undergoes **Physical Verification** which includes Design Rules Checking and Layout vs Schematic, and **Timing Verification** which includes Static Timing Analysis.
 
-<img width="400" alt="image" src="https://github.com/Lasya-G/Advanced-Physical-Design-using-open-lane/assets/140998582/7b760c4f-2dd0-40c1-9533-dbb1b13737f8">  
+<img width="500" alt="image" src="https://github.com/Lasya-G/Advanced-Physical-Design-using-open-lane/assets/140998582/7b760c4f-2dd0-40c1-9533-dbb1b13737f8">  
 
 **OpenLane**
 
@@ -77,7 +77,7 @@ The simplified ASIC design flow is shown below:
 - It has 2 modes of operation: Autonomous and Interactive.
 
 **OpenLane ASIC Flow**:  
-<img width="500" alt="image" src="https://github.com/Lasya-G/Advanced-Physical-Design-using-open-lane/assets/140998582/f02bc1db-eee4-4c52-aa64-98c0a7577b01">   
+<img width="700" alt="image" src="https://github.com/Lasya-G/Advanced-Physical-Design-using-open-lane/assets/140998582/f02bc1db-eee4-4c52-aa64-98c0a7577b01">   
 
 </details>
 
@@ -108,7 +108,7 @@ prep -design picorv32a
 run_synthesis
 ```
 
-<img alt="image" src="https://github.com/Lasya-G/Advanced-Physical-Design-using-open-lane/assets/140998582/bbe46115-0395-47a2-abce-93d9a9c80714">  
+<img width="700" alt="image" src="https://github.com/Lasya-G/Advanced-Physical-Design-using-open-lane/assets/140998582/bbe46115-0395-47a2-abce-93d9a9c80714">  
 
 To view the netlist, use the following commands:  
 ```
@@ -116,7 +116,7 @@ cd designs/picorv32a/runs/RUN_2023.09.12_06.50.19//results/synthesis/
 gedit picorv32.v
 ```
 
-<img alt="image" src="https://github.com/Lasya-G/Advanced-Physical-Design-using-open-lane/assets/140998582/51d96007-594e-4b3f-9bca-d07bc582eb30">  
+<img width="700" alt="image" src="https://github.com/Lasya-G/Advanced-Physical-Design-using-open-lane/assets/140998582/51d96007-594e-4b3f-9bca-d07bc582eb30">  
 
 Synthesis report can be seen by using these:
   ```
@@ -124,7 +124,7 @@ cd designs/picorv32a/runs/RUN_2023.09.12_06.50.19//results/synthesis/
 gedit 1-synthesis.AREA_0.stat.rpt 
 ```
 
-<img alt="image" src="https://github.com/Lasya-G/Advanced-Physical-Design-using-open-lane/assets/140998582/a40f673b-6dfd-4ba6-9e69-c1814e013057">  
+<img width="700" alt="image" src="https://github.com/Lasya-G/Advanced-Physical-Design-using-open-lane/assets/140998582/a40f673b-6dfd-4ba6-9e69-c1814e013057">  
 
 Flop ratio = Number of flops/Total number of cells = 1596/10104 = 0.1579 
 
@@ -154,11 +154,32 @@ Aspect Ratio =  Height
 The Aspect ratio of 1 implies that the chip is square shaped. Any value other than 1 implies rectanglular chip.  
 
 <i> Pre-Placed Cells </i> : They refer to specific logic cells or standard cells that are manually or algorithmically placed in predefined positions on the chip's layout before the automated placement and routing tools are applied to place and connect the rest of the logic cells. The locations of these pre-placement cells should be well defined because once placed, they cannot be altered. Pre-placement cells must always be surrounded by de-coupling capacitors.  
+
 <i> De-Coupling Capacitors </i> : When we connect the circuit with wires, there will be some voltage drop as every physical thing has some resistance. This voltage supplied after the drop must always be in the safe range of noise margin. De-coupling capacitors are huge capacitors charged to power supply voltage and placed close the logic circuit. Their role is to decouple the circuit from power supply by supplying the necessary amount of current to the circuit. They pervent crosstalk and enable local communication.  
 
-<img width="500" alt="image" src="https://github.com/Lasya-G/Advanced-Physical-Design-using-open-lane/assets/140998582/9c866db4-70a9-46b1-a5ca-d7bae4870c0b">  
+<img width="400" alt="image" src="https://github.com/Lasya-G/Advanced-Physical-Design-using-open-lane/assets/140998582/9c866db4-70a9-46b1-a5ca-d7bae4870c0b">  
 
 <i> Power Planning </i> : 
+- Ground Bump is a transient effect that can occur during the operation of the circuit where the voltage level of the ground (GND) signal temporarily rises or "bounces" above its reference voltage due to the switching of digital logic gates or other high-current activities. This condition arises when several blocks or cells try to dissipate power at the same time.
+- Voltage droop, also known as voltage sag or voltage drop, refers to a temporary reduction in the power supply voltage at a specific point on the chip when a high current demand occurs. This condition arises when several blocks or cells try to draw power at the same time.
+
+When this ground bump or voltage droop violates the noise margin range, then the desired output is not achievable. Inorder to avoid this, we place ground and power ports in horizontal and vertical positions so that these blokcs draw power or dissipate then to nearest associated port.  
+<img width="600" alt="image" src="https://github.com/Lasya-G/Advanced-Physical-Design-using-open-lane/assets/140998582/948ce2d8-5b19-4f80-8c1e-50727e6be2af">  
+
+<i> Pin Placemnet </i> : The connectivity information between the gates is coded using Verilog or VHDL language and is defined as the "Netlist". The Pin infromation is stored in between the Die and Core. The ordering of these pins is random as it depends on the placement of the cells. The clock cells is always bigger in size because it needs to drive most of the design blocks and must possess lease resistance.  
+<img width="600" alt="image" src="https://github.com/Lasya-G/Advanced-Physical-Design-using-open-lane/assets/140998582/b82518b2-3968-4974-9785-7a1968b310b6">  
+
+<i> **Floor Planning** </i>  
+
+Floorplan of picorv32a is done using the below command:  
+```
+run_floorplan
+```
+
+Post the floorplan run, a .def file will have been created within the "results/floorplan" directory. We may review floorplan files by checking the "floorplan.tcl". The system defaults will have been overriden by switches set in "conifg.tcl" and further overriden by switches set in "sky130A_sky130_fd_sc_hd_config.tcl".  
+
+To view the floorplan, we invoke magic.
+
 
 
 
