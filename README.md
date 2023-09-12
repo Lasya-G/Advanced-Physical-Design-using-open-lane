@@ -6,6 +6,7 @@
 - [Day 3 - Design library cell using Magic Layout and ngspice characterization](#day-3---design-library-cell-using-magic-layout-and-ngspice-characterization)
 - [Day 4 - Pre-layout timing analysis and importance of good clock tree](day-4---pre-layout-timing-analysis-and-importance-of-good-clock-tree)
 - [Day 5 - Final steps for RTL2GDS using tritonRoute and openSTA](#day-5---final-steps-for-rtl2gds-using-tritonroute-and-opensta)
+- [References](#references)
 
 ### Day 1 - Inception of open-source EDA, OpenLANE and Sky130 PDK
 <details>
@@ -150,7 +151,17 @@ Aspect Ratio =  Height
                 Width
 
 ```
-The Aspect ratio of 1 implies that the chip is square shaped. Any value other than 1 implies rectanglular chip.
+The Aspect ratio of 1 implies that the chip is square shaped. Any value other than 1 implies rectanglular chip.  
+
+<i> Pre-Placed Cells </i> : They refer to specific logic cells or standard cells that are manually or algorithmically placed in predefined positions on the chip's layout before the automated placement and routing tools are applied to place and connect the rest of the logic cells. The locations of these pre-placement cells should be well defined because once placed, they cannot be altered. Pre-placement cells must always be surrounded by de-coupling capacitors.  
+<i> De-Coupling Capacitors </i> : When we connect the circuit with wires, there will be some voltage drop as every physical thing has some resistance. This voltage supplied after the drop must always be in the safe range of noise margin. De-coupling capacitors are huge capacitors charged to power supply voltage and placed close the logic circuit. Their role is to decouple the circuit from power supply by supplying the necessary amount of current to the circuit. They pervent crosstalk and enable local communication.  
+
+<img width="500" alt="image" src="https://github.com/Lasya-G/Advanced-Physical-Design-using-open-lane/assets/140998582/9c866db4-70a9-46b1-a5ca-d7bae4870c0b">  
+
+<i> Power Planning </i> : 
+
+
+
 
 
 </details>
@@ -224,3 +235,10 @@ Power distribution network and routing
 Triron route features
 </summary>
 </details>
+
+### References
+1. https://www.vsdiat.com
+2. https://github.com/Devipriya1921/Physical_Design_Using_OpenLANE_Sky130
+3. https://chat.openai.com
+4. https://github.com/Rachana-Kaparthi/ADVANCED-PHYSICAL-DESIGN-USING-OPENLANE-SKY130
+
