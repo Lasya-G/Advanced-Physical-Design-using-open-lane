@@ -367,7 +367,6 @@ ext2spice cthresh 0 rethresh 0
 ext2spice
 ```
 ext2spice commands converts the ext file to spice netlist. cthreh and rthresh are the switches to extract all the parasitic resistance and capacitance. The extracted spice list has to be modified as shown below to use ngspice to perform simulation:
-```
 <img width="600" alt="image" src="https://github.com/Lasya-G/Advanced-Physical-Design-using-open-lane/assets/140998582/7c203860-da34-45ef-8c01-d72d22fa5df7">
 
 Use the following command to simulate spice netlist and plot the waveform:
@@ -398,29 +397,228 @@ Cell rise delay = (2.20636 - 2.15) = 56.36ps
 Cell fall delay = (4.07479 - 4.05) = 24.79ps
 ```
 
+<i> **Magic and DRC Rules** </i> :  
+The technology file is a setup file that declares layer types, colors, patterns, electrical connectivity, DRC, device extraction rules and rules to read LEF and DEF files. Magic layouts can be sourced from ```opencircuitdesign.com``` using the command:  
+```
+wget http://opencircuitdesign.com/open_pdks/archive/drc_tests.tgz
+tar xfz drc_tests.tgz
+```
 
-</details>
+```
+cd drc_tests
+magic -d XR met3.mag
+```
+
+To analyse DRC errors, magic is invoked and the met3.mag file is opened either from the software as ```file-> open-> met3.mag``` or by running command in tkcon as ```magic -d XR met3```.
+DRC errors can be found by selecting a component and typing: ```drc why``` in tkcon.  
+
+The descriptions of DRC rules can be found in the [SKY130 PDK’s documentation](https://skywater-pdk.readthedocs.io/en/main/rules/).
+
+
+</details>  
+
 
 ### Day 4 - Pre-layout timing analysis and importance of good clock tree
 <details>
 <summary>
 Timing modelling using delay tables
 </summary>
+
+<i> **Steps to convert Grid info inti Track info** </i>:  
+A requirement for ports as specified in ```tracks.info``` is that they should be at intersection of horizontal and vertical tracks. The CMOS Inverter ports A and Y are on li1 layer. It needs to be ensured that they're on the intersection of horizontal and vertical tracks. We access the tracks.info file for the pitch and direction information:  
+
+<img width="500" alt="image" src="https://github.com/Lasya-G/Advanced-Physical-Design-using-open-lane/assets/140998582/5eebb2b0-aea1-437c-82bb-8f4ad009a507">  
+
+To ensure that ports lie on the intersection point, the grid spacing in Magic (tkcon) must be changed to the li1 X and li1 Y values. Convergence of grid and tracks can be achieved using the following command:
+```
+grid 0.46um 0.34um 0.23um 0.17um
+```
+<img width="600" alt="image" src="https://github.com/Lasya-G/Advanced-Physical-Design-using-open-lane/assets/140998582/41cd60d2-6db7-42b9-b981-7f1ba1a92fd1">  
+
+<i> **Steps to convert magic layout to std cell LEF** </i> :  
+Next step is extracting LEF file for the cell. However, certain properties and definitions need to be set to the pins of the cell which aid the placer and router tool. For LEF files, a cell that contains ports is written as a macro cell, and the ports are the declared PINs of the macro. Our objective is to extract LEF from a given layout (here of a simple CMOS inverter) in standard format. Defining port and setting correct class and use attributes to each port is the first step. Ports of the layout are the pins of lef file.
+- Select port->Edit->text and make the following changes:
+<img width="500" alt="Screenshot from 2023-09-16 14-36-42" src="https://github.com/Lasya-G/Advanced-Physical-Design-using-open-lane/assets/140998582/587e87a8-bae9-4118-ac36-ef7b4db246f8">
+The same procedure is followed for Y, VPWR, VGND:
+<img width="500" alt="image" src="https://github.com/Lasya-G/Advanced-Physical-Design-using-open-lane/assets/140998582/809901b7-d9bd-428e-b9cb-835c593be6a0">
+<img width="500" alt="image" src="https://github.com/Lasya-G/Advanced-Physical-Design-using-open-lane/assets/140998582/9810cfc9-2cd1-4347-bfda-a80563d89d82">
+<img width="500" alt="image" src="https://github.com/Lasya-G/Advanced-Physical-Design-using-open-lane/assets/140998582/64d6e59d-95d5-4031-9172-d68625300d5d">
+
+<i> **Standard cell LEF generation** </i> :
+Before the CMOS Inverter standard cell LEF is extracted, the purpose of ports must be defined:
+```
+//Select A area
+
+port class input
+port use signal
+
+//Select Y area
+
+port class output
+port use signal
+
+//Select VPWR area
+
+port class inout
+port use power
+
+//Select VGND area
+
+port class inout
+port use ground
+```
+
+LEF extraction is done using the below command:
+```
+lef write
+```
+This generates sky130_vsdinv.lef file.  
+
+<i> **Steps to include to custome cell in design** </i> :  
+To include custom cell into syntheis:  
+- Copy file to picorv32a location.
+- In the config.json file, make the following changes:
+```
+
+{
+    "DESIGN_NAME": "picorv32",
+    "VERILOG_FILES": "dir::src/picorv32a.v",
+    "CLOCK_PORT": "clk",
+    "CLOCK_NET": "clk",
+    "GLB_RESIZER_TIMING_OPTIMIZATIONS": true,
+    "RUN_HEURISTIC_DIODE_INSERTION": true,
+    "DIODE_ON_PORTS": "in",
+    "GPL_CELL_PADDING": 2,
+    "DPL_CELL_PADDING": 2,
+    "CLOCK_PERIOD": 24,
+    "FP_CORE_UTIL": 35,
+    "PL_RANDOM_GLB_PLACEMENT": 1,
+    "PL_TARGET_DENSITY": 0.5,
+    "FP_SIZING": "relative",
+    "LIB_SYNTH":"dir::src/sky130_fd_sc_hd__typical.lib",
+    "LIB_FASTEST":"dir::src/sky130_fd_sc_hd__fast.lib",
+    "LIB_SLOWEST":"dir::src/sky130_fd_sc_hd__slow.lib",
+    "LIB_TYPICAL":"dir::src/sky130_fd_sc_hd__typical.lib",
+    "TEST_EXTERNAL_GLOB":"dir::/src/*",
+    "SYNTH_DRIVING_CELL":"sky130_vsdinv",
+    "MAX_FANOUT_CONSTRAINT": 4,
+    "pdk::sky130*": {
+        "MAX_FANOUT_CONSTRAINT": 6,
+        "scl::sky130_fd_sc_ms": {
+            "FP_CORE_UTIL": 30
+        }
+    }
+}
+```
+
+Now, run OpenLane using the following commands:
+```
+prep -design picorv32a
+set lefs [glob $::env(DESIGN_DIR)/src/*.lef]
+add_lefs -src $lefs
+run_synthesis
+```
+<img width="500" alt="image" src="https://github.com/Lasya-G/Advanced-Physical-Design-using-open-lane/assets/140998582/bc730d67-71a7-4fb1-a161-4a31d85a6104">  
+
+<i> **Dealy Tables** </i> :  
+We encounter several types of delays in ASIC design. They are as follows:Gate delay or Intrinsic delay,Net delay or Interconnect delay or Wire delay or Extrinsic delay or Flight time, Transition or Slew,Propagation delay,Contamination delay. Wire delays or extrinsic delays are calculated using output drive strength, input capacitance and wire load models. Other delays are intrinsic properties of each and every gate. Delays are interdependent on different electrical properties.Input capacitance of the logic gate is a function of output state, output loads and input slew rate, Internal timing arcs and output slew rate is a function of switching inputs, Capacitance of the wire is dependent on frequency. Lets say two scenarios, we have long wire and the cell(X1) is sitting at the end of the wire : the delay of this cell will be different because of the bad transition that caused due to the resistance and capcitances on the long wire. we have the same cell sitting at the end of the short wire: the delay of this will be different since the transistion is not that bad comapred. Eventhough both are same cells, depending upon the input tran, the delay got changed. Same goes with o/p load also.  
+
+<img width="600" alt="image" src="https://github.com/Lasya-G/Advanced-Physical-Design-using-open-lane/assets/140998582/75274263-46c7-45a7-b494-a95286fc040e">  
+
 </details>
+
 <details>
 <summary>
 Timing analysis with ideal clocks using openSTA
 </summary>
+
+<i> **Setup timing Analysis(Flip flop)** </i> :  
+Setup time is the required time duration that the input data MUST be stable before the triggering-edge of the clock. If data is changing within this setup time window, the input data might be lost and not stored in the flip-flop as metastability might occur. What is metastability? When setup and hold time requirements are violated, the flip-flop state becomes unstable, and after an unpredictable duration, the state of the flip-flop can settle either way (1 or 0). This scenario is known as metastability. As shown in the following diagram, output Q1 passes through the slow logic and arrives late at the input D2 of FF2, which leads to setup time violation and the loss of the new data. Thus combinational delay must be less than clock frequency - setup time.  
+
+<img width="600" alt="image" src="https://github.com/Lasya-G/Advanced-Physical-Design-using-open-lane/assets/140998582/62aa2cbb-93d9-4045-9ca4-12c2ca1675ca">  
+  
+
+**Clock Jitter**:  This is a characteristic of the clock source and the clock signal environment. It can be defined as “deviation of a clock edge from its ideal location.” Clock jitter is typically caused by clock generator circuitry, noise, power supply variations, interference from nearby circuitry etc. Jitter is a contributing factor to the design margin specified for timing closure.  
+<img width="600" alt="image" src="https://github.com/Lasya-G/Advanced-Physical-Design-using-open-lane/assets/140998582/5ab2d48b-fb60-4cd4-bd5c-72eaf7402bd6">  
+
+<i> **Post-synthesis timing analysis using Openlane** </i> :
+
+Timing analysis is carried out outside the openLANE flow using OpenSTA tool. For this, a new file pre_sta.conf is created. This file would be reqiured to carry out the STA analysis. Invoke OpenSTA outside the openLANE flow as follows:
+```
+sta pre_sta.conf
+```
+
+Since clock tree synthesis has not been performed yet, the analysis is with respect to ideal clocks and only setup time slack is taken into consideration. The slack value is the difference between data required time and data arrival time. The worst slack value must be greater than or equal to zero. If a negative slack is obtained, following steps may be followed:
+- Change synthesis strategy, synthesis buffering and synthesis sizing values.
+- Review maximum fanout of cells and replace cells with high fanout.
+
 </details>
+
 <details>
 <summary>
 Clock tree synthesis TritonCTS and signal integrity
 </summary>
-</details>
-<details>
-<summary>
-Timing analysis with real clocks using openSTA
-</summary>
+
+The purpose of building a clock tree is enable the clock input to reach every element and to ensure a zero clock skew. H-tree is a common methodology followed in CTS. Before attempting a CTS run in TritonCTS tool, if the slack was attempted to be reduced in previous run, the netlist may have gotten modified by cell replacement techniques. Therefore, the verilog file needs to be modified using the write_verilog command. In this stage clock is propagated and make sure that clock reaches each and every clock pin from clock source with mininimum skew and insertion delay. Inorder to do this, we implement H-tree using mid point strategy.  
+
+- **Balanced Tree CTS**: In a balanced tree CTS, the clock signal is distributed in a balanced manner, often resembling a binary tree structure. This approach aims to provide roughly equal path lengths to all clock sinks (flip-flops) to minimize clock skew. It's relatively straightforward to implement and analyze but may not be the most power-efficient solution.
+
+- **H-tree CTS**: An H-tree CTS uses a hierarchical tree structure, resembling the letter "H." It is particularly effective for distributing clock signals across large chip areas. The hierarchical structure can help reduce clock skew and optimize power consumption.
+<img width="500" alt="image" src="https://github.com/Lasya-G/Advanced-Physical-Design-using-open-lane/assets/140998582/6269d08b-5895-4f04-931c-be311a162db0">
+
+- **Star CTS**: In a star CTS, the clock signal is distributed from a single central point (like a star) to all the flip-flops. This approach simplifies clock distribution and minimizes clock skew but may require a higher number of buffers near the source.
+
+- **Global-Local CTS**: Global-Local CTS is a hybrid approach that combines elements of both star and tree topologies. The global clock tree distributes the clock signal to major clock domains, while local trees within each domain further distribute the clock. This approach balances between global and local optimization, addressing both chip-wide and domain-specific clocking requirements.
+
+- **Mesh CTS**: In a mesh CTS, clock wires are arranged in a mesh-like grid pattern, and each flip-flop is connected to the nearest available clock wire. It is often used in highly regular and structured designs, such as memory arrays. Mesh CTS can offer a balance between simplicity and skew minimization.
+
+- **Adaptive CTS**: Adaptive CTS techniques adjust the clock tree structure dynamically based on the timing and congestion constraints of the design. This approach allows for greater flexibility and adaptability in meeting design goals but may be more complex to implement.
+
+<i> **CrossTalk** </i> :  Crosstalk is a disturbance caused by the electric or magnetic fields of one telecommunication signal affecting a signal in an adjacent circuit. Essentially, every electrical signal has a varying electromagnetic field. Whenever these fields overlap, unwanted signals -- capacitive, conductive or inductive coupling -- cause electromagnetic interference (EMI) that can create crosstalk. Overlap can occur with structured cabling, integrated circuit design, audio electronics and other connectivity systems. For example, if there are two wires in close proximity that are carrying different signals, their currents will create magnetic fields that induce a weaker signal in the neighboring wire. Impact: Crosstalk is a significant concern in VLSI design due to the high integration density of components on a chip. Uncontrolled crosstalk can lead to data corruption, timing violations, and increased power consumption. Mitigation: VLSI designers employ various techniques to mitigate crosstalk, such as optimizing layout and routing, using appropriate shielding, implementing proper clock distribution strategies, and utilizing clock gating to reduce dynamic power consumption when logic is idle.  
+
+<img width="600" alt="image" src="https://github.com/Lasya-G/Advanced-Physical-Design-using-open-lane/assets/140998582/79620abf-1e88-4fec-8938-1622c3a4a722">  
+
+<i> **Clock Net Shielding** </i> : Shielding is done so as to prevent gltch. Shields are connected to VDD or GND. The shields do not switch.VLSI designers may use shielding techniques to isolate the clock network from other signals, reducing the risk of interference. This can include dedicated clock routing layers, clock tree synthesis algorithms, and buffer insertion to manage clock distribution more effectively. Clock Domain Isolation: VLSI designs often have multiple clock domains. Shielding and proper clock gating help ensure that clock signals do not propagate between domains, avoiding metastability issues and maintaining synchronization.  
+
+<img width="600" alt="image" src="https://github.com/Lasya-G/Advanced-Physical-Design-using-open-lane/assets/140998582/1a7157d8-6181-4c9c-85e6-3208090e38f8">  
+
+<i> **LAB** </i> :  
+The purpose of building a clock tree is enable the clock input to reach every element and to ensure a zero clock skew. H-tree is a common methodology followed in CTS. Before attempting a CTS run in TritonCTS tool, if the slack was attempted to be reduced in previous run, the netlist may have gotten modified by cell replacement techniques. Therefore, the verilog file needs to be modified using the ```write_verilog``` command. Then, the synthesis, floorplan and placement is run again.   
+To run CTS use the below command:
+```
+run_cts
+```
+
+After CTS run, my slack values are:
+```
+setup = 13.12
+Hold = 0.21
+```
+Here, my both values are not voilating as they are positive.  
+Since, clock is propagated, from this stage, we do timing analysis with real clocks. From now post cts analysis is performed by operoad within the openlane flow:
+```
+openroad
+read_lef <path of merge.nom.lef>
+read_def <path of def>
+write_db pico_cts.db
+read_db pico_cts.db
+read_verilog /home/parallels/OpenLane/designs/picorv32a/runs/RUN_09-09_11-20/results/synthesis/picorv32a.v
+read_liberty $::env(LIB_SYNTH_COMPLETE)
+read_sdc /home/parallels/OpenLane/designs/picorv32a/src/my_base.sdc
+set_propagated_clock (all_clocks)
+report_checks -path_delay min_max -format full_clock_expanded -digits 4
+```
+<img width="600" alt="268354707-f93e8387-ca88-4a88-b809-c8c52436ad85" src="https://github.com/Lasya-G/Advanced-Physical-Design-using-open-lane/assets/140998582/6d0e2dee-4790-4cab-ae50-94856701e26b">  
+
+<img width="600" alt="268354659-fff6a48d-59f0-446e-b6da-f456dcef0dbe" src="https://github.com/Lasya-G/Advanced-Physical-Design-using-open-lane/assets/140998582/27b6c135-e578-4ee7-9625-3a7f5d8b05a0">  
+
+To check all the clock buffers, use these commands in openlane:
+```
+echo $::env(CTS_CLK_BUFFER_LIST)
+set $::env(CTS_CLK_BUFFER_LIST) [lreplace $::env(CTS_CLK_BUFFER_LIST) 0 0]
+echo $::env(CTS_CLK_BUFFER_LIST)
+```
+
 </details>
 
 ### Day 5 - Final steps for RTL2GDS using tritonRoute and openSTA
@@ -428,16 +626,107 @@ Timing analysis with real clocks using openSTA
 <summary>
 Routing and design rule check(DRC)
 </summary>
+
+<i> **Maze Routing and Lee's algorithm** </i>:  
+Routing is the process of creating physical connections based on logical connectivity. Signal pins are connected by routing metal interconnects. Routed metal paths must meet timing, clock skew, max trans/cap requirements and also physical DRC requirements. In grid based routing system each metal layer has its own tracks and preferred routing direction which are defined in a unified cell in the standard cell library.  
+There are four steps of routing operations:
+1. Global routing
+2. Track assignment
+3. Detail routing
+4. Search and repair
+
+The Maze Routing algorithm, such as the Lee algorithm, is one approach for solving routing problems. In this method, a grid similar to the one created during cell customization is utilized for routing purposes. The Lee algorithm starts with two designated points, the source and target, and leverages the routing grid to identify the shortest or optimal route between them. The algorithm assigns labels to neighboring grid cells around the source, incrementing them from 1 until it reaches the target (for instance, from 1 to 7). Various paths may emerge during this process, including L-shaped and zigzag-shaped routes. The Lee algorithm prioritizes selecting the best path, typically favoring L-shaped routes over zigzags. If no L-shaped paths are available, it may resort to zigzag routes. This approach is particularly valuable for global routing tasks. However, the Lee algorithm has limitations. It essentially constructs a maze and then numbers its cells from the source to the target. While effective for routing between two pins, it can be time-consuming when dealing with millions of pins. There are alternative algorithms that address similar routing challenges.  
+
+<img width="600" alt="image" src="https://github.com/Lasya-G/Advanced-Physical-Design-using-open-lane/assets/140998582/a6c25672-e5f3-462c-bf28-5ddc93d8b1b3">  
+
+<i> **DRC** </i> :  
+
+Design Rule Checking (DRC) verifies as to whether a specific design meets the constraints imposed by the process technology to be used for its manufacturing. DRC checking is an essential part of the physical design flow and ensures the design meets manufacturing requirements and will not result in a chip failure. The process technology rules are provided by process engineers and/or fabrication facility.Each process technology will have its own set of rules. The number of DRC rules and complexity of rules increases as the manufacturing technology shrinks at advanced nodes DRC verifies whether a design meets the predefined process technology rules given by the foundry for its manufacturing. DRC checking is an essential part of the physical design flow and ensures the design meets manufacturing requirements and will not result in a chip failure. It defines the Quality of chip. They are so many DRCs, let us see few of them Design rules for physical wires Minimum width of the wire Minimum spacing between the wires Minimum pitch of the wire To solve signal short violation, we take the metal layer and put it on to upper metal layer. We check via rules via width via spacing.  
+
+<img width="250" alt="image" src="https://github.com/Lasya-G/Advanced-Physical-Design-using-open-lane/assets/140998582/f4e6ba96-3deb-4675-9fe0-ca6daa30e10a">  
+<img width="250" alt="image" src="https://github.com/Lasya-G/Advanced-Physical-Design-using-open-lane/assets/140998582/47135e42-21e1-4e5f-a7cb-fccdcd90fe96">  
+<img width="250" alt="image" src="https://github.com/Lasya-G/Advanced-Physical-Design-using-open-lane/assets/140998582/cc9c05ac-5dd5-4e4f-ad3a-d36b8ffa1262">  
+
+<img width="250" alt="image" src="https://github.com/Lasya-G/Advanced-Physical-Design-using-open-lane/assets/140998582/75a51f01-c34b-4b17-be9b-b25a10413c85">  
+<img width="250" alt="image" src="https://github.com/Lasya-G/Advanced-Physical-Design-using-open-lane/assets/140998582/47022cb5-9530-47e5-a3a0-d0236d538609">  
+<img width="250" alt="image" src="https://github.com/Lasya-G/Advanced-Physical-Design-using-open-lane/assets/140998582/b68b0bf8-3006-4fc3-9dea-613ef70bd369">  
+
+<img width="500" alt="image" src="https://github.com/Lasya-G/Advanced-Physical-Design-using-open-lane/assets/140998582/9cd493b1-9e9a-4dd2-a081-f892253ebcdf">  
+
 </details>
 <details>
 <summary>
 Power distribution network and routing
 </summary>
+
+<i> **LAB** </i> :  
+PDN must be generated after CTS and post-CTS STA analyses.
+```
+gen_pdn
+```
+
+We can confirm the success of PDN by checking the current def environment variable: ```echo $::env(CURRENT_DEF)```  
+
+- ```gen_pdn``` - Generates the Power Distribution network.
+- The power distribution network has to take the ```design_cts.def``` as the input def file.This will create the grid and the straps for the Vdd and the ground. These are placed around the standard cells.
+- The standard cells are designed such that it's height is multiples of the space between the Vdd and the ground rails. Here, the pitch is 2.72. Only if the above conditions are adhered it is possible to power the standard cells.
+- The power to the chip, enters through the power pads. There is each for Vdd and Gnd
+- From the pads, the power enters the rings, through the via. The straps are connected to the ring. Vdd straps are connected to the Vdd ring and the Gnd Straps are connected to the Gnd ring. There are horizontal and the vertical straps.
+- Now the power has to be supplied from the straps to the standard cells. The straps are connected to the rails of the standard cells.
+- If macros are present then the straps attach to the rings of the macros via the macro pads and the pdn for the macro is pre-done.
+- There are definitions for the straps and the railss. In this design straps are at metal layer 4 and 5 and the standard cell rails are at the metal layer 1. Vias connect accross the layers as required.
+
+<img width="600" alt="image" src="https://github.com/Lasya-G/Advanced-Physical-Design-using-open-lane/assets/140998582/d621bace-65ac-4995-aaf5-8256c019bd40">  
+
+<i> **Routing** </i> :
+OpenLANE uses the TritonRoute tool for routing. There are 2 stages of routing:
+1. Global routing: Routing region is divided into rectangle grids which are represented as course 3D routes (Fastroute tool).
+2. Detailed routing: Finer grids and routing guides used to implement physical wiring (TritonRoute tool).
+
+<img width="600" alt="image" src="https://github.com/Lasya-G/Advanced-Physical-Design-using-open-lane/assets/140998582/9ecd3b99-7633-4f06-82c5-dc953564fc62">  
+
+
 </details>
+
 <details>
 <summary>
 Triron route features
 </summary>
+
+Features of TritonRoute:
+- Honouring pre-processed route guides.
+- Assumes that each net satisfies inter guide connectivity.
+- Uses MILP based panel routing scheme.
+- Intra-layer parallel and inter-layer sequential routing framework.
+
+<i> **Pre-processed route guides** </i> :  TritonRoute places significant emphasis on following pre-processed route guides. This involves several actions:
+- Initial Route Guide Analysis: TritonRoute analyzes the directions specified in the preferred route guides. If any non-directional routing guides are identified, it breaks them down into unit widths.
+- Guide Splitting: In cases where non-directional routing guides are encountered, TritonRoute divides them into unit widths to facilitate routing.
+- Guide Merging: TritonRoute merges guides that are orthogonal (touching guides) to the preferred guides, streamlining the routing process.
+- Guide Bridging: When it encounters guides that run parallel to the preferred routing guides, TritonRoute employs an additional layer to bridge them, ensuring efficient routing within the preprocessed guides.
+- Assumes route guide for each net satisfy inter guide connectivity Same metal layer with touching guides or neighbouring metal layers with nonzero vertically overlapped area( via are placed ).each unconnected termial i.e., pin of a standard cell instance should have its pin shape overlapped by a routing guide( a black dot(pin) with purple box(metal1 layer))
+
+<img width="500" alt="![image](https://github.com/Lasya-G/Advanced-Physical-Design-using-open-lane/assets/140998582/007ef3bb-4477-42ba-b936-1d0b58918c5e)
+
+<i> **Inter guide connectivity and intra-inter layer routing** </i> :
+Two guides are connected if They are on the same metal layer with touching edges or they are on neighbouring metal layers with a non zero vertically overlapped area. Each unconnected terminal should have its pin shape overlapped by a route guide.  
+<img width="500" alt="image" src="https://github.com/Lasya-G/Advanced-Physical-Design-using-open-lane/assets/140998582/d3594a3d-6a6b-4505-9a10-ffd2d44a0fb9">  
+
+<img width="500" alt="image" src="https://github.com/Lasya-G/Advanced-Physical-Design-using-open-lane/assets/140998582/6ad6605e-0856-417e-a329-d7de50eb5420">  
+
+<i> **Handling connectivity** </i> :  
+The inputs to triton detailed route are lef file, def file, preprocessed route guides. THe outputs are detailed routing solutions with optimized wire length and via coun. Constraint files: Route guide honoring, connectivity constraints and design rules.
+- Access Point: An on grid metal poiny on the route guide, used to connect to lower layer segments, upperlayer pins or io ports.
+- Access Point Cluster: A collection of all access points derived from lower layer segments upper layer guide a pin or an io port.
+
+<img width="600" alt="image" src="https://github.com/Lasya-G/Advanced-Physical-Design-using-open-lane/assets/140998582/9db457f1-a6cb-496e-bd12-4f4486b9f857">  
+
+<i> **Topology Algorithm** </i> :  
+<img width="500" alt="image" src="https://github.com/Lasya-G/Advanced-Physical-Design-using-open-lane/assets/140998582/d351c6a6-6b30-406e-8e31-6809259683df">  
+
+
+
+
 </details>
 
 ### References
@@ -445,5 +734,8 @@ Triron route features
 2. https://github.com/Devipriya1921/Physical_Design_Using_OpenLANE_Sky130
 3. https://github.com/Rachana-Kaparthi/ADVANCED-PHYSICAL-DESIGN-USING-OPENLANE-SKY130
 4. https://chat.openai.com
-5. https://github.com/alwinshaju08/Physicaldesign_openlane
+5. http://opencircuitdesign.com/magic/
+6. https://github.com/nickson-jose/vsdstdcelldesign/
+7. https://github.com/The-OpenROAD-Project/OpenLane
+8. https://github.com/alwinshaju08/Physicaldesign_openlane
 
