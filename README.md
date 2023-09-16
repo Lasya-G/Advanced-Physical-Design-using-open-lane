@@ -334,14 +334,71 @@ The 16-mask CMOS process consists of the following steps:
 8. Higher level metal formation: CMP for planarization followed by TiN and Tungsten deposition. Top SiN layer for chip protection.
 <img width="500" alt="image" src="https://github.com/Lasya-G/Advanced-Physical-Design-using-open-lane/assets/140998582/a8e3ec3e-9dc4-4426-888a-a85f3a5b68d2">
 
- 
+The 16 masks used in the above process are:  
 
+- *Substrate Mask (Mask 1):* This mask defines the active regions on the silicon wafer where transistors and other devices will be formed. It specifies the boundaries of the N-well and P-well regions.
+- *Threshold Voltage Adjustment Mask (Mask 2):* This mask adjusts the threshold voltage of the transistors by defining the regions where threshold voltage implants are required.
+- *Gate Oxide Mask (Mask 3):* This mask defines the areas where gate oxide will be grown or deposited. The gate oxide acts as an insulator between the gate electrode and the silicon substrate.
+- *Poly-Silicon Gate Mask (Mask 4):* This mask defines the gate electrodes for both N-channel and P-channel transistors. It outlines the shape of the gates.
+- *N+ and P+ Diffusion Masks (Masks 5 and 6):* These masks define the source and drain regions for the N-channel and P-channel transistors, respectively. These regions are typically doped with impurities to create the necessary electrical characteristics.
+- *Contact Mask (Mask 7):* This mask defines the openings for contacts, which allow the metal layers to connect to the underlying silicon.
+- *First Metal Layer Mask (Mask 8):* This mask defines the first layer of metal interconnects that connect various components on the chip, such as transistors and contacts.
+- *Interlayer Dielectric (ILD) Mask (Mask 9):* This mask defines the dielectric material that insulates metal layers from each other. It also specifies the locations of vias for vertical connections.
+- *Via Mask (Mask 10):* This mask defines the openings in the ILD layer for vias, which enable vertical connections between metal layers.
+- *Second Metal Layer Mask (Mask 11):* This mask defines the second layer of metal interconnects, which connect to the underlying metal layer and vias.
+- *Barrier Layer Mask (Mask 12):* This mask defines layers used to improve adhesion between metal and dielectric, enhancing the reliability of the interconnects.
+- *Third Metal Layer Mask (Mask 13):* This mask defines the third layer of metal interconnects, which can connect to the lower metal layers through vias.
+- *Passivation Layer Mask (Mask 14):* This mask defines the protective passivation layer that covers the entire chip, protecting it from external factors and contamination.
+- *Bond Pad Mask (Mask 15):* This mask defines the locations of bond pads, which are used for external electrical connections and testing.
+- *Test Structure Mask (Mask 16):* This mask includes various test structures used for quality control, testing, and characterization during manufacturing.
 
 </details>
+
 <details>
 <summary>
 Sky130 Tech files Lab
 </summary>
+
+
+<i> **Spice Extraction** </i> : Use the below commands in tkcon to achieve .mag to .spice extraction:  
+```
+extract all
+ext2spice cthresh 0 rethresh 0
+ext2spice
+```
+ext2spice commands converts the ext file to spice netlist. cthreh and rthresh are the switches to extract all the parasitic resistance and capacitance. The extracted spice list has to be modified as shown below to use ngspice to perform simulation:
+```
+<img width="600" alt="image" src="https://github.com/Lasya-G/Advanced-Physical-Design-using-open-lane/assets/140998582/7c203860-da34-45ef-8c01-d72d22fa5df7">
+
+Use the following command to simulate spice netlist and plot the waveform:
+```
+ngspice sky130_inv.spice
+plot y vs time a
+```
+<img width="500" alt="image" src="https://github.com/Lasya-G/Advanced-Physical-Design-using-open-lane/assets/140998582/0165717e-8401-4b2a-b939-9de2db8daa1e">
+
+The spikes in the output at switching points is due to low capacitance loads. This can be taken care of by editing the spice deck to increase the load capacitance value.
+
+<i> **Inverter Standard cell Characterization** </i> :
+Four timing parameters are used to characterize the inverter standard cell:
+
+- Rise transition: Time taken for the output to rise from 20% of max value to 80% of max value.
+- Fall transition- Time taken for the output to fall from 80% of max value to 20% of max value.
+- Cell rise delay = time(50% output rise) - time(50% input fall)
+- Cell fall delay = time(50% output fall) - time(50% input rise)
+
+The above timing parameters can be computed by noting down various values from the ngspice waveform:
+```
+Rise transition = (2.23843 - 2.17935) = 59.08ps
+
+Fall transition = (4.09291 - 4.05004) = 42.87ps
+
+Cell rise delay = (2.20636 - 2.15) = 56.36ps
+
+Cell fall delay = (4.07479 - 4.05) = 24.79ps
+```
+
+
 </details>
 
 ### Day 4 - Pre-layout timing analysis and importance of good clock tree
