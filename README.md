@@ -520,6 +520,16 @@ run_synthesis
 ```
 <img width="500" alt="image" src="https://github.com/Lasya-G/Advanced-Physical-Design-using-open-lane/assets/140998582/bc730d67-71a7-4fb1-a161-4a31d85a6104">  
 
+Now we use the below commands to run floorplan and placement:
+```
+run_floorplan
+run_placement
+```
+
+<img width="600" alt="Screenshot from 2023-09-18 13-54-46" src="https://github.com/Lasya-G/Advanced-Physical-Design-using-open-lane/assets/140998582/5e549c79-5d39-44dd-a498-d436239a8d1b">  
+
+
+
 <i> **Dealy Tables** </i> :  
 We encounter several types of delays in ASIC design. They are as follows:Gate delay or Intrinsic delay,Net delay or Interconnect delay or Wire delay or Extrinsic delay or Flight time, Transition or Slew,Propagation delay,Contamination delay. Wire delays or extrinsic delays are calculated using output drive strength, input capacitance and wire load models. Other delays are intrinsic properties of each and every gate. Delays are interdependent on different electrical properties.Input capacitance of the logic gate is a function of output state, output loads and input slew rate, Internal timing arcs and output slew rate is a function of switching inputs, Capacitance of the wire is dependent on frequency. Lets say two scenarios, we have long wire and the cell(X1) is sitting at the end of the wire : the delay of this cell will be different because of the bad transition that caused due to the resistance and capcitances on the long wire. we have the same cell sitting at the end of the short wire: the delay of this will be different since the transistion is not that bad comapred. Eventhough both are same cells, depending upon the input tran, the delay got changed. Same goes with o/p load also.  
 
