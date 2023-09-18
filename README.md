@@ -604,6 +604,8 @@ After CTS run, my slack values are:
 setup = 13.45
 Hold = 0.16
 ```
+<img width="600" alt="image" src="https://github.com/Lasya-G/Advanced-Physical-Design-using-open-lane/assets/140998582/ea432a79-0497-4ab5-8fd9-90286c5e06bf">  
+
 Here, my both values are not voilating as they are positive.  
 Since, clock is propagated, from this stage, we do timing analysis with real clocks. From now post cts analysis is performed by operoad within the openlane flow:
 ```
