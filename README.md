@@ -620,9 +620,7 @@ read_sdc /home/parallels/OpenLane/designs/picorv32a/src/my_base.sdc
 set_propagated_clock (all_clocks)
 report_checks -path_delay min_max -format full_clock_expanded -digits 4
 ```
-<img width="600" alt="268354707-f93e8387-ca88-4a88-b809-c8c52436ad85" src="https://github.com/Lasya-G/Advanced-Physical-Design-using-open-lane/assets/140998582/6d0e2dee-4790-4cab-ae50-94856701e26b">  
 
-<img width="600" alt="268354659-fff6a48d-59f0-446e-b6da-f456dcef0dbe" src="https://github.com/Lasya-G/Advanced-Physical-Design-using-open-lane/assets/140998582/27b6c135-e578-4ee7-9625-3a7f5d8b05a0">  
 
 To check all the clock buffers, use these commands in openlane:
 ```
