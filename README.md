@@ -601,8 +601,8 @@ run_cts
 
 After CTS run, my slack values are:
 ```
-setup = 13.12
-Hold = 0.21
+setup = 13.45
+Hold = 0.16
 ```
 Here, my both values are not voilating as they are positive.  
 Since, clock is propagated, from this stage, we do timing analysis with real clocks. From now post cts analysis is performed by operoad within the openlane flow:
