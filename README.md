@@ -526,7 +526,7 @@ run_floorplan
 run_placement
 ```
 
-<img width="600" alt="Screenshot from 2023-09-18 13-54-46" src="https://github.com/Lasya-G/Advanced-Physical-Design-using-open-lane/assets/140998582/5e549c79-5d39-44dd-a498-d436239a8d1b">  
+<img width="600" alt="image" src="https://github.com/Lasya-G/Advanced-Physical-Design-using-open-lane/assets/140998582/749854e4-62cb-48fa-89bb-8544844bfd1b">    
 
 
 
